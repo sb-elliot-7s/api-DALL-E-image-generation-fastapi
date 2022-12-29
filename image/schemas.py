@@ -5,9 +5,9 @@ from fastapi import Form
 
 
 class Size(str, Enum):
-    S = '256×256'
-    M = '512×512'
-    L = '1024×1024'
+    S = '256x256'
+    M = '512x512'
+    L = '1024x1024'
 
 
 class ResponseFormat(str, Enum):
@@ -29,6 +29,9 @@ class BaseImageSchema(BaseModel):
 
 class CreateImageSchema(BaseImageSchema):
     prompt: constr(max_length=1000)
+
+    class Config:
+        use_enum_values = True
 
 
 class ImageURLSchema(BaseModel):
