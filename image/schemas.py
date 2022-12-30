@@ -1,5 +1,6 @@
 from enum import Enum
 
+from openai.openai_object import OpenAIObject
 from pydantic import BaseModel, conint, constr
 from fastapi import Form
 
@@ -30,13 +31,14 @@ class BaseImageSchema(BaseModel):
 class CreateImageSchema(BaseImageSchema):
     prompt: constr(max_length=1000)
 
+    @classmethod
+    def as_form(cls, prompt: str = Form(...), count: int = Form(default=1, gt=0, le=10),
+                size: Size = Form(default=Size.S), response_format: ResponseFormat = Form(default=ResponseFormat.URL)):
+        return cls(prompt=prompt, count=count, size=size, response_format=response_format)
+
     class Config:
         use_enum_values = True
 
 
-class ImageURLSchema(BaseModel):
-    url: str
-
-
 class ImageResponseSchema(BaseModel):
-    data: list[ImageURLSchema] | dict
+    data: list[OpenAIObject] | dict
