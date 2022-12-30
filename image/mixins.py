@@ -14,7 +14,7 @@ class ImageExceptionEnum(str, Enum):
     MUST_BE_A_SQUARE = 'must be a square'
     MUST_BE_THE_SAME_SIZE = 'must be the same size'
 
-    def get_exception(self, status_code: int):
+    def get_exception(self, status_code: int = status.HTTP_400_BAD_REQUEST):
         return {
             ImageExceptionEnum.MUST_BE_LESS_THAN_4_MB: HTTPException(status_code, detail=f'Image {self.value}'),
             ImageExceptionEnum.MUST_BE_A_SQUARE: HTTPException(status_code, detail=f'Image {self.value}'),
@@ -43,16 +43,16 @@ class ImageUtilsMixin:
     @staticmethod
     def check_image(image: bytes):
         if len(image) > 4194304:
-            raise ImageExceptionEnum.MUST_BE_LESS_THAN_4_MB.get_exception(status.HTTP_400_BAD_REQUEST)
+            raise ImageExceptionEnum.MUST_BE_LESS_THAN_4_MB.get_exception()
         with Image.open(BytesIO(image)) as im:
             if im.format != 'PNG':
-                raise ImageExceptionEnum.MUST_BE_PNG_FORMAT.get_exception(status.HTTP_400_BAD_REQUEST)
+                raise ImageExceptionEnum.MUST_BE_PNG_FORMAT.get_exception()
             if im.width != im.height:
-                raise ImageExceptionEnum.MUST_BE_A_SQUARE.get_exception(status.HTTP_400_BAD_REQUEST)
+                raise ImageExceptionEnum.MUST_BE_A_SQUARE.get_exception()
             return im.width, im.height
 
     def compare_images(self, image: bytes, mask: bytes):
         img_size = self.check_image(image=image)
         mask_size = self.check_image(image=mask)
         if img_size != mask_size:
-            raise ImageExceptionEnum.MUST_BE_THE_SAME_SIZE.get_exception(status.HTTP_400_BAD_REQUEST)
+            raise ImageExceptionEnum.MUST_BE_THE_SAME_SIZE.get_exception()
